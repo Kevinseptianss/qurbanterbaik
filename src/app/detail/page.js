@@ -2,30 +2,13 @@ import Image from "next/image";
 import prod1 from "../../assets/prod1.png";
 import { Location, Whatsapp } from "iconsax-react";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function Detail() {
   return (
     <>
-      <div className="flex flex-col gap-3 items-center justify-center py-2 bg-[#FFDEAD] drop-shadow-xl">
-        <Link href="/" passHref>
-          <h1 className="text-3xl font-bold cursor-pointer hover:text-orange-600 transition-colors">
-            Qurbanterbaik
-          </h1>
-        </Link>
-        <div className="flex flex-row items-center justify-center w-full px-5">
-          <input
-            className="bg-white rounded-lg px-3 py-1 flex-1"
-            placeholder="Cari sapi di sini"
-          />
-          <button className="bg-orange-500 text-white rounded-lg px-3 py-1 ml-2">
-            Cari
-          </button>
-        </div>
-      </div>
-
-      {/* Products grid container with vertical scrolling */}
+      <Header />
       <div className="flex flex-col gap-4 px-4 py-2 overflow-y-auto h-[calc(100vh-150px)]">
-        {/* Grid with exactly 2 columns and auto rows */}
         <Image
           src={prod1}
           alt="Product 1"
@@ -83,8 +66,8 @@ export default function Detail() {
             </p>
           </div>
         </div>
-        <div className="bg-amber-500 text-amber-200 rounded-lg px-4 py-2 w-full flex flex-row gap-2 justify-center items-center">
-          <Whatsapp size="32" color="#fde68a" variant="Bulk" />
+        <div className="bg-[#8b4513] text-white font-bold rounded-lg px-4 py-2 w-full flex flex-row gap-2 justify-center items-center">
+          <Whatsapp size="32" color="#ffffff" variant="Bulk" />
           <p>Hubungi Kami</p>
         </div>
       </div>
