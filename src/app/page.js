@@ -56,7 +56,7 @@ export default function Home() {
                     e.preventDefault();
                     e.stopPropagation();
                     window.open(
-                      `https://wa.me/628123456789?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
+                      `https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
                         item.judul
                       )}`,
                       "_blank",
@@ -76,12 +76,12 @@ export default function Home() {
 
       <div className="sticky bottom-0 left-0 right-0">
         <a
-          href={`https://wa.me/628123456789?text=Halo,%20saya%20tertarik%20dengan%20hewan%20qurban%20yang%20saya%20lihat%20di%20website`}
+          href={`https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20hewan%20qurban%20yang%20saya%20lihat%20di%20website`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-row gap-2 justify-center items-center bg-[#548235] text-white font-bold px-4 py-2"
         >
-          <h1>PROPOSAL DAN SURVEY KANDANG</h1>
+          <h1>Butuh Bantuan ? Klik WA</h1>
         </a>
       </div>
     </div>

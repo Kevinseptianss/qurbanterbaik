@@ -139,7 +139,7 @@ export default function Detail() {
         </div>
 
         <a
-          href={`https://wa.me/628123456789?text=Halo,%20saya%20tertarik%20dengan%20${product.judul}`}
+          href={`https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20${product.judul}`}
           target="_blank"
           rel="noopener noreferrer"
           className="bg-[#8b4513] text-white font-bold rounded-lg px-4 py-2 w-full flex flex-row gap-2 justify-center items-center"
