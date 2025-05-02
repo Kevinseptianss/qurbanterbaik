@@ -29,48 +29,50 @@ export default function Home() {
       <Header data={originalData} setFilteredData={setFilteredData} />
       <div className="flex-1 px-4 py-2">
         <div className="grid grid-cols-2">
-          {filteredData.map((item, index) => (
-            <Link
-              href={`/detail/${item.id}`}
-              className="bg-white rounded-lg p-4 flex flex-col items-center"
-              key={item.id}
-              passHref
-            >
-              <div className="contents">
-                <Image
-                  src={item.linkFoto}
-                  alt={`Product ${item.judul}`}
-                  className="w-full h-auto object-contain"
-                  width={150}
-                  height={150}
-                  priority={index < 3}
-                />
-                <p className="mt-2 text-center font-medium h-[48px] line-clamp-2 overflow-hidden text-ellipsis">
-                  {item.judul}
-                </p>
-                <p className="text-sm text-red-500 font-bold">
-                  Rp {item.harga.toLocaleString()}
-                </p>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.open(
-                      `https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
-                        item.judul
-                      )}`,
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
-                  }}
-                  className="bg-[#8b4513] text-white rounded-xs px-2 py-1 w-full flex flex-row gap-2 justify-center items-center"
-                >
-                  <Whatsapp size="24" color="white" variant="Bulk" />
-                  <p className="text-[0.7rem]">Hubungi Kami</p>
-                </button>
-              </div>
-            </Link>
-          ))}
+          {filteredData
+            .filter((item) => item.highlight === "on") // Only show items with highlight: "on"
+            .map((item, index) => (
+              <Link
+                href={`/detail/${item.id}`}
+                className="bg-white rounded-lg p-4 flex flex-col items-center"
+                key={item.id}
+                passHref
+              >
+                <div className="contents">
+                  <Image
+                    src={item.linkFoto}
+                    alt={`Product ${item.judul}`}
+                    className="w-full h-auto object-contain"
+                    width={150}
+                    height={150}
+                    priority={index < 3}
+                  />
+                  <p className="mt-2 text-center font-medium h-[48px] line-clamp-2 overflow-hidden text-ellipsis">
+                    {item.judul}
+                  </p>
+                  <p className="text-sm text-red-500 font-bold">
+                    Rp {item.harga.toLocaleString()}
+                  </p>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(
+                        `https://wa.me/628123456789?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
+                          item.judul
+                        )}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                    className="bg-[#8b4513] text-white rounded-xs px-2 py-1 w-full flex flex-row gap-2 justify-center items-center"
+                  >
+                    <Whatsapp size="24" color="white" variant="Bulk" />
+                    <p className="text-[0.7rem]">Hubungi Kami</p>
+                  </button>
+                </div>
+              </Link>
+            ))}
         </div>
       </div>
 

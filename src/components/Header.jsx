@@ -74,41 +74,47 @@ const Header = ({ onFilterChange, data, setFilteredData }) => {
     setFilteredData(filtered);
   }, [filters, data, setFilteredData]);
 
-  const kandangOptions = data
-    ? [
-        { value: "all", label: "Semua kandang" },
-        ...Array.from(new Set(data.map((item) => item.kandang)))
-          .filter(Boolean)
-          .map((kandang) => ({ value: kandang, label: kandang })),
-      ]
-    : [];
+  // Get filtered data based on current selections for cascading dropdowns
+  const getFilteredData = () => {
+    let result = [...data];
 
-  const rangeOptions = data
-    ? [
-        { value: "all", label: "Semua range" },
-        ...Array.from(new Set(data.map((item) => item.rangeBobotHarga)))
-          .filter(Boolean)
-          .map((rangeBobotHarga) => ({
-            value: rangeBobotHarga,
-            label: rangeBobotHarga,
-          })),
-      ]
-    : [];
+    if (filters.kandang) {
+      result = result.filter((item) => item.kandang === filters.kandang.value);
+    }
 
-  const jenisOptions = data
-    ? [
-        { value: "all", label: "Semua jenis" },
-        ...Object.entries(
-          data.reduce((acc, item) => {
-            acc[item.jenis] = (acc[item.jenis] || 0) + 1;
-            return acc;
-          }, {})
-        ).map(([jenis, count]) => ({
-          value: jenis,
-          label: `${jenis} (${count})`,
-        })),
-      ]
-    : [];
+    if (filters.range) {
+      result = result.filter(
+        (item) => item.rangeBobotHarga === filters.range.value
+      );
+    }
+
+    if (filters.jenis) {
+      result = result.filter((item) => item.jenis === filters.jenis.value);
+    }
+
+    return result;
+  };
+
+  // Generate options based on current filters
+  const generateOptions = (field) => {
+    const filteredData = getFilteredData();
+    const uniqueValues = Array.from(new Set(filteredData.map((item) => item[field])))
+      .filter(Boolean);
+
+    return [
+      { value: "all", label: `Semua ${field === "jenis" ? "jenis" : field === "kandang" ? "kandang" : "range"}` },
+      ...uniqueValues.map((value) => ({
+        value,
+        label: field === "jenis" 
+          ? `${value} (${filteredData.filter(item => item.jenis === value).length})` 
+          : value
+      }))
+    ];
+  };
+
+  const kandangOptions = data ? generateOptions("kandang") : [];
+  const rangeOptions = data ? generateOptions("rangeBobotHarga") : [];
+  const jenisOptions = data ? generateOptions("jenis") : [];
 
   const kategoriList = jenisOptions.filter((opt) => opt.value !== "all");
 
@@ -117,20 +123,29 @@ const Header = ({ onFilterChange, data, setFilteredData }) => {
       ...filters,
       [filterType]: option.value === "all" ? null : option,
     };
+
+    // Reset dependent filters when a parent filter changes
+    if (filterType === "kandang") {
+      newFilters.range = null;
+      newFilters.jenis = null;
+    } else if (filterType === "range") {
+      newFilters.jenis = null;
+    }
+
     setFilters(newFilters);
   };
 
   if (!data) {
     return (
-    <div className="flex flex-col gap-3 items-center justify-center py-2 border-1 border-gray-200">
-      <Link href="/">
-        <h1 className="text-3xl font-bold">Qurbanterbaik.com</h1>
-      </Link>
-      <p className="text-center">
-        Hewan Qurban RAWATAN Terbaik, Harga NEGO Termurah, Terpercaya:
-        0812-9746-3380 | Ibu Evi
-      </p>
-    </div>
+      <div className="flex flex-col gap-3 items-center justify-center py-2 border-1 border-gray-200">
+        <Link href="/">
+          <h1 className="text-3xl font-bold">Qurbanterbaik.com</h1>
+        </Link>
+        <p className="text-center">
+          Hewan Qurban RAWATAN Terbaik, Harga NEGO Termurah, Terpercaya:
+          0812-9746-3380 | Ibu Evi
+        </p>
+      </div>
     );
   }
 
