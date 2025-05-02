@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import YouTube from "react-youtube"; // Import the YouTube component
 
 export default function Detail() {
   const [product, setProduct] = useState(null);
@@ -25,6 +26,25 @@ export default function Detail() {
 
     fetchProduct();
   }, [params.id]);
+
+  const opts = {
+    height: "100%",
+    width: "100%",
+    playerVars: {
+      autoplay: 0, // Auto-play the video on load: 0 = off, 1 = on
+      controls: 1, // Show player controls
+      modestbranding: 1, // Hide YouTube logo
+      rel: 0, // Do not show related videos at the end
+    },
+  };
+
+  const extractYouTubeId = (url) => {
+    if (!url) return null;
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
 
   if (loading) {
     return (
@@ -59,6 +79,13 @@ export default function Detail() {
           width={150}
           height={150}
         />
+          <div className="w-full aspect-video rounded-lg">
+            <YouTube
+              videoId={extractYouTubeId(product.linkYoutube)}
+              opts={opts}
+              className="w-full h-full"
+            />
+          </div>
         <h1 className="text-2xl font-bold">{product.judul}</h1>
         <h1 className="text-2xl font-bold text-red-500">
           Rp {product.harga.toLocaleString()}
@@ -70,9 +97,7 @@ export default function Detail() {
           </div>
 
           <div className="border-1 border-blue-200 bg-blue-200 rounded-lg px-4 py-2">
-            <p className="text-blue-600">
-              {product.jenis}
-            </p>
+            <p className="text-blue-600">{product.jenis}</p>
           </div>
         </div>
 
@@ -85,9 +110,7 @@ export default function Detail() {
         <div className="flex flex-row gap-2">
           <div className="flex flex-row gap-2 justify-center items-center border-1 border-orange-200 bg-orange-200 rounded-lg px-4 py-2">
             <Location size="32" color="#f97316" variant="Bulk" />
-            <p className="text-orange-500">
-              {product.kandang}
-            </p>
+            <p className="text-orange-500">{product.kandang}</p>
           </div>
         </div>
 

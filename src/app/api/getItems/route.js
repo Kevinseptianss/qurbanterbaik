@@ -1,4 +1,4 @@
-import { db } from '@/firebase/configure'; // Import Firebase Admin SDK
+import { db } from '@/firebase/configure';
 
 export async function GET(request) {
   try {
