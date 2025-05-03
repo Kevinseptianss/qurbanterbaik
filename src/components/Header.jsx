@@ -59,37 +59,33 @@ const Header = ({ data, setFilteredData, resetFilter }) => {
   useEffect(() => {
     if (!data) return;
 
-    let filtered = [...data];
+    const applyFilters = () => {
+      let filtered = [...data];
+      
+      if (filters.kandang) {
+        filtered = filtered.filter(item => item.kandang === filters.kandang.value);
+      }
+      if (filters.range) {
+        filtered = filtered.filter(item => item.rangeBobotHarga === filters.range.value);
+      }
+      if (filters.jenis) {
+        filtered = filtered.filter(item => item.jenis === filters.jenis.value);
+      }
+      
+      // Only update if filters are actually different from current data
+      setFilteredData(filtered);
+    };
 
-    // If no filters are applied, don't modify the data (parent will handle showing highlights)
-    if (!hasFilters) {
-      return;
+    // Only apply filters if hasFilters is true
+    if (hasFilters) {
+      applyFilters();
     }
+  }, [filters, data, hasFilters]); // Removed setFilteredData from dependencies
 
-    if (filters.kandang) {
-      filtered = filtered.filter(
-        (item) => item.kandang === filters.kandang.value
-      );
-    }
-
-    if (filters.range) {
-      filtered = filtered.filter(
-        (item) => item.rangeBobotHarga === filters.range.value
-      );
-    }
-
-    if (filters.jenis) {
-      filtered = filtered.filter((item) => item.jenis === filters.jenis.value);
-    }
-
-    setFilteredData(filtered);
-  }, [filters, data, setFilteredData, hasFilters]);
-
-  // Check if any filters are active
+  // Check if any filters are active - OPTIMIZED
   useEffect(() => {
-    const anyFiltersActive = Object.values(filters).some(Boolean);
-    setHasFilters(anyFiltersActive);
-  }, [filters]);
+    setHasFilters(!!filters.kandang || !!filters.range || !!filters.jenis);
+  }, [filters.kandang, filters.range, filters.jenis]);
 
   // Get filtered data based on current selections for cascading dropdowns
   const getFilteredData = () => {

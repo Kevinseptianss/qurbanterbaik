@@ -5,6 +5,7 @@ import { Whatsapp } from "iconsax-react";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import noicon from "../../public/noicon.jpg"
 
 export default function Home() {
   const [originalData, setOriginalData] = useState([]);
@@ -18,8 +19,9 @@ export default function Home() {
       try {
         const response = await axios.get("/api/getItems");
         setOriginalData(response.data);
-        setHighlightData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
-        setFilteredData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
+        const highlights = response.data.filter(item => item.highlight?.trim().toLowerCase() === "on");
+        setHighlightData(highlights);
+        setFilteredData(highlights); // Initialize with highlight items
       } catch (error) {
         console.error("Error fetching menu:", error);
       }
@@ -90,16 +92,18 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
       />
       <div className="flex-1 px-4 py-2">
         <div className="grid grid-cols-2">
-          {filteredData.map((item, index) => (
-            <Link
-              href={`/detail/${item.id}`}
+        {filteredData.map((item, index) => (
+            <div 
               className="bg-white rounded-lg p-4 flex flex-col items-center"
               key={item.id}
-              passHref
             >
-              <div className="contents">
+              <Link
+                href={`/detail/${item.id}`}
+                className="contents"
+                passHref
+              >
                 <Image
-                  src={item.linkFoto}
+                  src={item.linkFoto || noicon}
                   alt={`Product ${item.judul}`}
                   className="w-full h-auto object-contain"
                   width={150}
@@ -112,31 +116,30 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
                 <p className="text-sm text-red-500 font-bold">
                   Rp {item.harga.toLocaleString()}
                 </p>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.open(
-                      `https://wa.me/628123456789?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
-                        item.judul
-                      )}`,
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
-                  }}
-                  className="bg-[#8b4513] text-white rounded-xs px-2 py-1 w-full flex flex-row gap-2 justify-center items-center"
-                >
-                  <Whatsapp size="24" color="white" variant="Bulk" />
-                  <p className="text-[0.7rem]">Hubungi Kami</p>
-                </button>
-              </div>
-            </Link>
+              </Link>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open(
+                    `https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20${encodeURIComponent(
+                      item.judul
+                    )}`,
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
+                }}
+                className="bg-[#8b4513] text-white rounded-xs px-2 py-1 w-full flex flex-row gap-2 justify-center items-center mt-2"
+              >
+                <Whatsapp size="24" color="white" variant="Bulk" />
+                <p className="text-[0.7rem]">Hubungi Kami</p>
+              </button>
+            </div>
           ))}
         </div>
       </div>
 
       <div 
-        className="flex flex-row bg-orange-500 m-5 px-5 py-3 items-center justify-center text-white font-bold rounded-lg cursor-pointer"
+        className="flex flex-row bg-[#ed7d31] m-5 px-5 py-3 items-center justify-center text-white font-bold rounded-lg cursor-pointer"
         onClick={() => setShowFAQ(true)}
       >
         <h1>FAQ</h1>
@@ -166,7 +169,7 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
             <div className="mt-6">
               <button
                 onClick={() => setShowFAQ(false)}
-                className="w-full bg-orange-500 text-white py-2 rounded-lg font-bold"
+                className="w-full bg-[#ed7d31] text-white py-2 rounded-lg font-bold"
               >
                 Tutup
               </button>
