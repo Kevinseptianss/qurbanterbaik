@@ -9,16 +9,17 @@ import axios from "axios";
 export default function Home() {
   const [originalData, setOriginalData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [highlightData, setHighlightData] = useState([]);
+  const [isFiltered, setIsFiltered] = useState(false); // New state to track if filter is applied
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         const response = await axios.get("/api/getItems");
-        const highlightedItems = response.data.filter(
-          (item) => item.highlight === "on"
-        );
-        setOriginalData(highlightedItems);
-        setFilteredData(highlightedItems);
+        setOriginalData(response.data);
+        setHighlightData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
+        // Initially show only highlighted items
+        setFilteredData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
       } catch (error) {
         console.error("Error fetching menu:", error);
       }
@@ -27,9 +28,25 @@ export default function Home() {
     fetchMenu();
   }, []);
 
+  // Function to handle filtering from Header
+  const handleFilter = (filteredItems) => {
+    setIsFiltered(true); // Mark that filter has been applied
+    setFilteredData(filteredItems);
+  };
+
+  // Function to reset to initial state (show only highlighted)
+  const resetFilter = () => {
+    setIsFiltered(false);
+    setFilteredData(highlightData);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <Header data={originalData} setFilteredData={setFilteredData} />
+      <Header 
+        data={originalData} 
+        setFilteredData={handleFilter} 
+        resetFilter={resetFilter} // Pass reset function to Header
+      />
       <div className="flex-1 px-4 py-2">
         <div className="grid grid-cols-2">
           {filteredData.map((item, index) => (
