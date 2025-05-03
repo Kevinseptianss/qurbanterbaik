@@ -10,7 +10,8 @@ export default function Home() {
   const [originalData, setOriginalData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [highlightData, setHighlightData] = useState([]);
-  const [isFiltered, setIsFiltered] = useState(false); // New state to track if filter is applied
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false); // State to control FAQ modal visibility
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -18,7 +19,6 @@ export default function Home() {
         const response = await axios.get("/api/getItems");
         setOriginalData(response.data);
         setHighlightData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
-        // Initially show only highlighted items
         setFilteredData(response.data.filter(item => item.highlight?.trim().toLowerCase() === "on"));
       } catch (error) {
         console.error("Error fetching menu:", error);
@@ -28,24 +28,65 @@ export default function Home() {
     fetchMenu();
   }, []);
 
-  // Function to handle filtering from Header
   const handleFilter = (filteredItems) => {
-    setIsFiltered(true); // Mark that filter has been applied
+    setIsFiltered(true);
     setFilteredData(filteredItems);
   };
 
-  // Function to reset to initial state (show only highlighted)
   const resetFilter = () => {
     setIsFiltered(false);
     setFilteredData(highlightData);
   };
+
+  const faqContent = [
+    {
+      title: "1. Tentang QurbanTerbaik",
+      content: `QurbanTerbaik adalah penyedia informasi dan layanan hewan qurban terpercaya yang bekerja sama dengan berbagai farm pilihan. Setiap hewan qurban yang ditawarkan sudah termasuk pakan, perawatan, dan pengiriman gratis untuk area Jabodetabek.
+
+Kami hadir untuk membantu Anda mendapatkan hewan qurban yang berkualitas, sehat, dan terawat dengan standar terbaik.
+
+Kami berkomitmen menjadi mitra utama Anda dalam menunaikan ibadah qurban dengan tenang dan penuh keberkahan.`
+    },
+    {
+      title: "2. Survey Kandang",
+      content: `Bagi Anda yang ingin melakukan survey kandang, harap melakukan konfirmasi terlebih dahulu dengan melengkapi informasi berikut:
+
+- Nama pengunjung
+- Tanggal, hari, dan jam kunjungan
+- Lokasi kandang
+- Nomor HP
+- Kebutuhan hewan qurban (jenis, range bobot, dan harga)
+
+Silakan hubungi Ibu Evi di 0812-9746-3380 untuk penjadwalan survey kandang.`
+    },
+    {
+      title: "3. Alur Pemesanan dan Pembayaran",
+      content: `- Pemilihan hewan qurban dapat dilakukan melalui katalog online atau kunjungan langsung ke kandang.
+- Setelah memilih, Anda dapat melakukan pembayaran DP atau pelunasan. Kuitansi pembayaran akan diberikan sebagai bukti transaksi.`
+    },
+    {
+      title: "4. Pengiriman Hewan Qurban",
+      content: `Pengiriman hewan qurban dapat dilakukan sebelum Hari H untuk menghindari kemacetan atau keterlambatan pada Hari Raya Idul Adha.
+
+Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
+
+- Alamat pengiriman
+- Tautan lokasi (Maps)
+- Nama dan nomor kontak penerima
+- Pengiriman dilakukan setelah pelunasan pembayaran diterima.`
+    },
+    {
+      title: "5. Kontak Admin",
+      content: `Untuk konsultasi, survey, dan pemesanan hewan qurban, silakan hubungi Ibu Evi melalui WhatsApp di nomor: 0812-9746-3380`
+    }
+  ];
 
   return (
     <div className="flex flex-col h-screen">
       <Header 
         data={originalData} 
         setFilteredData={handleFilter} 
-        resetFilter={resetFilter} // Pass reset function to Header
+        resetFilter={resetFilter}
       />
       <div className="flex-1 px-4 py-2">
         <div className="grid grid-cols-2">
@@ -93,6 +134,46 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      <div 
+        className="flex flex-row bg-orange-500 m-5 px-5 py-3 items-center justify-center text-white font-bold rounded-lg cursor-pointer"
+        onClick={() => setShowFAQ(true)}
+      >
+        <h1>FAQ</h1>
+      </div>
+
+      {/* FAQ Modal */}
+      {showFAQ && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Frequently Asked Question</h2>
+              <button 
+                onClick={() => setShowFAQ(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              {faqContent.map((faq, index) => (
+                <div key={index} className="mb-4">
+                  <h3 className="font-bold text-lg mb-2">{faq.title}</h3>
+                  <p className="whitespace-pre-line">{faq.content}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              <button
+                onClick={() => setShowFAQ(false)}
+                className="w-full bg-orange-500 text-white py-2 rounded-lg font-bold"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="sticky bottom-0 left-0 right-0">
         <a
