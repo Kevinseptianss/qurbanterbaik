@@ -135,9 +135,9 @@ const Header = ({ data, setFilteredData, resetFilter }) => {
       ...uniqueValues.map((value) => ({
         value,
         label:
-          field === "jenis"
+          field === "jenis" || field === "kandang"
             ? `${value} (${
-                filteredData.filter((item) => item.jenis === value).length
+                filteredData.filter((item) => item[field] === value).length
               })`
             : value,
       })),
@@ -251,22 +251,31 @@ const Header = ({ data, setFilteredData, resetFilter }) => {
       </div>
 
       <p className="mx-4 text-center">
-        Kategori:{" "}
-        {kategoriList.map((kategori, index) => (
-          <span key={kategori.value}>
-            <span
-              className="underline cursor-pointer hover:text-orange-500"
-              onClick={() => {
-                handleFilterSelect("jenis", kategori);
-                handleApplyFilters();
-              }}
-            >
-              {kategori.label}
-            </span>
-            {index !== kategoriList.length - 1 ? ", " : ""}
-          </span>
-        ))}
-      </p>
+  Kategori:{" "}
+  {kategoriList.map((kategori, index) => {
+    const labelParts = kategori.label.split(/\((\d+)\)/);
+    
+    return (
+      <span key={kategori.value}>
+        <span
+          className="underline cursor-pointer hover:text-orange-500"
+          onClick={() => {
+            handleFilterSelect("jenis", kategori);
+            handleApplyFilters();
+          }}
+        >
+          {labelParts[0]}
+          {labelParts[1] && (
+            <>
+              <span className="font-bold">({labelParts[1]})</span>
+            </>
+          )}
+        </span>
+        {index !== kategoriList.length - 1 ? ", " : ""}
+      </span>
+    );
+  })}
+</p>
     </div>
   );
 };
