@@ -1,15 +1,16 @@
 "use client";
 import Image from "next/image";
-import { Location, Whatsapp } from "iconsax-react";
+import { Location, Whatsapp, Share } from "iconsax-react";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import YouTube from "react-youtube"; // Import the YouTube component
+import YouTube from "react-youtube";
 
 export default function Detail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isCopied, setIsCopied] = useState(false);
   const params = useParams();
 
   useEffect(() => {
@@ -27,14 +28,43 @@ export default function Detail() {
     fetchProduct();
   }, [params.id]);
 
+  const handleShare = () => {
+    // Get the current URL
+    const shareUrl = window.location.href;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        setIsCopied(true);
+        // Reset the copied state after 3 seconds
+        setTimeout(() => setIsCopied(false), 3000);
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+        // Fallback for browsers that don't support clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 3000);
+        } catch (err) {
+          console.error('Fallback copy failed: ', err);
+        }
+        document.body.removeChild(textArea);
+      });
+  };
+
   const opts = {
     height: "100%",
     width: "100%",
     playerVars: {
-      autoplay: 0, // Auto-play the video on load: 0 = off, 1 = on
-      controls: 1, // Show player controls
-      modestbranding: 1, // Hide YouTube logo
-      rel: 0, // Do not show related videos at the end
+      autoplay: 0,
+      controls: 1,
+      modestbranding: 1,
+      rel: 0,
     },
   };
 
@@ -137,6 +167,19 @@ export default function Detail() {
             <p className="whitespace-pre-wrap">{product.deskripsi}</p>
           </div>
         </div>
+
+        <button
+          onClick={handleShare}
+          className="bg-[#8b4513] text-white font-bold rounded-lg px-4 py-2 w-full flex flex-row gap-2 justify-center items-center relative"
+        >
+          <Share size="32" color="#ffffff" variant="Bulk" />
+          <p>{isCopied ? "Tautan Tersalin!" : "Bagikan"}</p>
+          {isCopied && (
+            <div className="absolute -top-8 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+              Tautan berhasil disalin!
+            </div>
+          )}
+        </button>
 
         <a
           href={`https://wa.me/6281297463380?text=Halo,%20saya%20tertarik%20dengan%20${product.judul}`}
