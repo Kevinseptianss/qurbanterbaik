@@ -31,27 +31,28 @@ export default function Detail() {
   const handleShare = () => {
     // Get the current URL
     const shareUrl = window.location.href;
-    
+
     // Copy to clipboard
-    navigator.clipboard.writeText(shareUrl)
+    navigator.clipboard
+      .writeText(shareUrl)
       .then(() => {
         setIsCopied(true);
         // Reset the copied state after 3 seconds
         setTimeout(() => setIsCopied(false), 3000);
       })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
         // Fallback for browsers that don't support clipboard API
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = shareUrl;
         document.body.appendChild(textArea);
         textArea.select();
         try {
-          document.execCommand('copy');
+          document.execCommand("copy");
           setIsCopied(true);
           setTimeout(() => setIsCopied(false), 3000);
         } catch (err) {
-          console.error('Fallback copy failed: ', err);
+          console.error("Fallback copy failed: ", err);
         }
         document.body.removeChild(textArea);
       });
@@ -109,13 +110,21 @@ export default function Detail() {
           width={150}
           height={150}
         />
-          <div className="w-full aspect-video rounded-lg">
-            <YouTube
-              videoId={extractYouTubeId(product.linkYoutube)}
-              opts={opts}
-              className="w-full h-full"
-            />
-          </div>
+        <div className="w-full aspect-video rounded-lg">
+          <YouTube
+            videoId={extractYouTubeId(product.linkYoutube)}
+            opts={opts}
+            className="w-full h-full"
+          />
+        </div>
+        {/* Added YouTube red button */}
+        <a
+          href={product.linkYoutube}
+          className="bg-[#FF0000] text-white font-bold rounded-lg px-4 py-2 w-full text-center"
+        >
+          Lihat Video Sapi Klik Di Sini
+        </a>
+
         <h1 className="text-2xl font-bold">{product.judul}</h1>
         <h1 className="text-2xl font-bold text-red-500">
           Rp {product.harga.toLocaleString()}
