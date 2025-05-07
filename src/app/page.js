@@ -3,41 +3,77 @@ import Image from "next/image";
 import Link from "next/link";
 import { Whatsapp } from "iconsax-react";
 import Header from "@/components/Header";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import noicon from "../../public/noicon.jpg"
+import noicon from "../../public/noicon.jpg";
 
 export default function Home() {
   const [originalData, setOriginalData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [highlightData, setHighlightData] = useState([]);
   const [isFiltered, setIsFiltered] = useState(false);
-  const [showFAQ, setShowFAQ] = useState(false); // State to control FAQ modal visibility
+  const [showFAQ, setShowFAQ] = useState(false);
+  const [sortOption, setSortOption] = useState("default");
+  const [unsortedData, setUnsortedData] = useState([]); // Stores data before sorting
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         const response = await axios.get("/api/getItems");
         setOriginalData(response.data);
-        const highlights = response.data.filter(item => item.highlight?.trim().toLowerCase() === "on");
+        const highlights = response.data.filter(
+          (item) => item.highlight?.trim().toLowerCase() === "on"
+        );
         setHighlightData(highlights);
-        setFilteredData(highlights); // Initialize with highlight items
+        setUnsortedData(highlights); // Initialize with highlight items
       } catch (error) {
         console.error("Error fetching menu:", error);
       }
     };
-
     fetchMenu();
   }, []);
 
+  // Apply sorting whenever sortOption or unsortedData changes
+  const filteredData = useMemo(() => {
+    if (sortOption === "default") {
+      return unsortedData; // No sorting applied
+    }
+  
+    const sorted = [...unsortedData];
+    if (sortOption === "price-asc" || sortOption === "price-desc") {
+      const convertHargaToNumber = (harga) => {
+        // If it's not a string or doesn't contain digits, treat as 0
+        if (typeof harga !== "string" || !/\d/.test(harga)) return 0;
+        // Remove all dots and parse as integer
+        return parseInt(harga.replace(/\./g, ''), 10) || 0;
+      };
+  
+      sorted.sort((a, b) => {
+        const numA = convertHargaToNumber(a.harga);
+        const numB = convertHargaToNumber(b.harga);
+        return sortOption === "price-asc" ? numA - numB : numB - numA;
+      });
+    } else if (sortOption === "weight-asc") {
+      sorted.sort((a, b) => a.bobot - b.bobot);
+    } else if (sortOption === "weight-desc") {
+      sorted.sort((a, b) => b.bobot - a.bobot);
+    }
+    return sorted;
+  }, [sortOption, unsortedData]);
+
   const handleFilter = (filteredItems) => {
     setIsFiltered(true);
-    setFilteredData(filteredItems);
+    setUnsortedData(filteredItems); // Update the base data (before sorting)
+    setSortOption("default"); // Reset sorting when new filters are applied
   };
 
   const resetFilter = () => {
     setIsFiltered(false);
-    setFilteredData(highlightData);
+    setUnsortedData(highlightData); // Reset to highlight data
+    setSortOption("default");
+  };
+
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
   };
 
   const faqContent = [
@@ -47,7 +83,7 @@ export default function Home() {
 
 Kami hadir untuk membantu Anda mendapatkan hewan qurban yang berkualitas, sehat, dan terawat dengan standar terbaik.
 
-Kami berkomitmen menjadi mitra utama Anda dalam menunaikan ibadah qurban dengan tenang dan penuh keberkahan.`
+Kami berkomitmen menjadi mitra utama Anda dalam menunaikan ibadah qurban dengan tenang dan penuh keberkahan.`,
     },
     {
       title: "2. Survey Kandang",
@@ -59,12 +95,12 @@ Kami berkomitmen menjadi mitra utama Anda dalam menunaikan ibadah qurban dengan 
 - Nomor HP
 - Kebutuhan hewan qurban (jenis, range bobot, dan harga)
 
-Silakan hubungi Ibu Evi di 0812-9746-3380 untuk penjadwalan survey kandang.`
+Silakan hubungi Ibu Evi di 0812-9746-3380 untuk penjadwalan survey kandang.`,
     },
     {
       title: "3. Alur Pemesanan dan Pembayaran",
       content: `- Pemilihan hewan qurban dapat dilakukan melalui katalog online atau kunjungan langsung ke kandang.
-- Setelah memilih, Anda dapat melakukan pembayaran DP atau pelunasan. Kuitansi pembayaran akan diberikan sebagai bukti transaksi.`
+- Setelah memilih, Anda dapat melakukan pembayaran DP atau pelunasan. Kuitansi pembayaran akan diberikan sebagai bukti transaksi.`,
     },
     {
       title: "4. Pengiriman Hewan Qurban",
@@ -75,33 +111,43 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
 - Alamat pengiriman
 - Tautan lokasi (Maps)
 - Nama dan nomor kontak penerima
-- Pengiriman dilakukan setelah pelunasan pembayaran diterima.`
+- Pengiriman dilakukan setelah pelunasan pembayaran diterima.`,
     },
     {
       title: "5. Kontak Admin",
-      content: `Untuk konsultasi, survey, dan pemesanan hewan qurban, silakan hubungi Ibu Evi melalui WhatsApp di nomor: 0812-9746-3380`
-    }
+      content: `Untuk konsultasi, survey, dan pemesanan hewan qurban, silakan hubungi Ibu Evi melalui WhatsApp di nomor: 0812-9746-3380`,
+    },
   ];
 
   return (
     <div className="flex flex-col h-screen">
-      <Header 
-        data={originalData} 
-        setFilteredData={handleFilter} 
+      <Header
+        data={originalData}
+        setFilteredData={handleFilter}
         resetFilter={resetFilter}
       />
+      <div className="px-4 py-2">
+        <select
+          value={sortOption}
+          onChange={handleSortChange}
+          className="w-full p-2 border rounded-lg"
+        >
+          <option value="default">Urutkan</option>
+          <option value="price-asc">Harga: Termurah</option>
+          <option value="price-desc">Harga: Termahal</option>
+          <option value="weight-asc">Bobot: Ringan ke Berat</option>
+          <option value="weight-desc">Bobot: Berat ke Ringan</option>
+        </select>
+      </div>
+
       <div className="flex-1 px-4 py-2">
         <div className="grid grid-cols-2">
-        {filteredData.map((item, index) => (
-            <div 
+          {filteredData.map((item, index) => (
+            <div
               className="bg-white rounded-lg p-4 flex flex-col items-center"
               key={item.id}
             >
-              <Link
-                href={`/detail/${item.id}`}
-                className="contents"
-                passHref
-              >
+              <Link href={`/detail/${item.id}`} className="contents" passHref>
                 <Image
                   src={item.linkFoto || noicon}
                   alt={`Product ${item.judul}`}
@@ -138,7 +184,7 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
         </div>
       </div>
 
-      <div 
+      <div
         className="flex flex-row bg-[#ed7d31] m-5 px-5 py-3 items-center justify-center text-white font-bold rounded-lg cursor-pointer"
         onClick={() => setShowFAQ(true)}
       >
@@ -151,7 +197,7 @@ Shohibul qurban dimohon untuk memberikan informasi lengkap, meliputi:
           <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Frequently Asked Question</h2>
-              <button 
+              <button
                 onClick={() => setShowFAQ(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
